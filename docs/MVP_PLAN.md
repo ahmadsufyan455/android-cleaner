@@ -91,7 +91,7 @@ These are important, but they should not block the first reliable cleaning loop.
 | MVP-0.2 | Done | Create package structure for `core`, `data`, `domain`, `presentation`, `di`, and `service`. | MVP-0.1 | Source tree matches SRS architecture. |
 | MVP-0.3 | Done | Add Hilt application setup and base DI modules for dispatchers. | MVP-0.1 | App launches with `@HiltAndroidApp`; ViewModels can be injected. |
 | MVP-0.4 | Done | Add Room database skeleton with `ScanRunEntity`, `FileItemEntity`, and `TrashEntryEntity`. | MVP-0.1 | Room schema compiles; DAO smoke tests pass. |
-| MVP-0.5 | Todo | Add DataStore settings repository for theme, thresholds, onboarding state, last scan, last clean. | MVP-0.1 | Settings survive process restart. |
+| MVP-0.5 | Done | Add DataStore settings repository for theme, thresholds, onboarding state, last scan, last clean. | MVP-0.1 | Settings survive process restart. |
 | MVP-0.6 | Todo | Add Compose Navigation shell: Home, Scan, Results, Settings, Onboarding. | MVP-0.3 | Back stack behaves predictably; app starts at onboarding until completed. |
 | MVP-0.7 | Todo | Build Material 3 theme with dynamic color support and edge-to-edge layout. | MVP-0.6 | Light/dark/system themes render correctly on API 26 and API 36. |
 | MVP-0.8 | Todo | Implement own-app cache scanner and cleaner. | MVP-0.4, MVP-0.5 | User can see Clen cache size and clear it without storage permission. |
