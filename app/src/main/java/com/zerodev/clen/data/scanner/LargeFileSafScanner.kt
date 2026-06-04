@@ -63,7 +63,7 @@ class LargeFileSafScanner @Inject constructor(
 
                 if (mimeType == DocumentsContract.Document.MIME_TYPE_DIR) {
                     visitDocument(treeUri, childUri, thresholdBytes, largeFiles)
-                } else if (sizeBytes >= thresholdBytes) {
+                } else if (ScannerRules.isLargeFile(sizeBytes, thresholdBytes)) {
                     largeFiles += FileItem(
                         uri = childUri.toString(),
                         displayName = displayName,

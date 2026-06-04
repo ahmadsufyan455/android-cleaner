@@ -26,23 +26,23 @@ class ResidualApkScanner @Inject constructor(
     override suspend fun scan(): List<FileItem> = withContext(ioDispatcher) {
         if (!mediaPermissionCoordinator.hasAnyMediaReadAccess()) return@withContext emptyList()
 
-        val olderThanMillis = System.currentTimeMillis() - MIN_AGE_MILLIS
+        val nowMillis = System.currentTimeMillis()
         val files = context.contentResolver.queryFiles(
             selection = "${MediaStore.Files.FileColumns.MIME_TYPE} = ?",
-            selectionArgs = arrayOf(APK_MIME_TYPE),
+            selectionArgs = arrayOf(ScannerRules.APK_MIME_TYPE),
             sortOrder = "${MediaStore.Files.FileColumns.DATE_MODIFIED} ASC",
         )
 
         files
             .asSequence()
-            .filter { it.lastModifiedMillis <= olderThanMillis }
-            .filter { it.displayName.endsWith(".apk", ignoreCase = true) }
+            .filter {
+                ScannerRules.isResidualApk(
+                    displayName = it.displayName,
+                    lastModifiedMillis = it.lastModifiedMillis,
+                    nowMillis = nowMillis,
+                )
+            }
             .map { it.toFileItem(category = category, source = source) }
             .toList()
-    }
-
-    private companion object {
-        const val APK_MIME_TYPE = "application/vnd.android.package-archive"
-        const val MIN_AGE_MILLIS = 7L * 24L * 60L * 60L * 1_000L
     }
 }

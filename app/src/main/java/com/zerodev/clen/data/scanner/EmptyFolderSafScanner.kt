@@ -77,7 +77,10 @@ class EmptyFolderSafScanner @Inject constructor(
             child to childIsEmpty
         }
 
-        val isEmpty = nonDirectoryChildren == 0 && childDirectoriesEmpty.all { it.second }
+        val isEmpty = ScannerRules.isEmptyFolder(
+            nonDirectoryChildCount = nonDirectoryChildren,
+            childDirectoryEmptyStates = childDirectoriesEmpty.map { it.second },
+        )
         if (isEmpty) {
             emptyFolders += FileItem(
                 uri = directoryUri.toString(),

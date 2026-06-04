@@ -7,6 +7,7 @@ import com.zerodev.clen.data.local.entity.FileItemEntity
 import com.zerodev.clen.data.local.entity.ScanRunEntity
 import com.zerodev.clen.data.local.entity.TrashEntryEntity
 import com.zerodev.clen.domain.model.JunkCategory
+import com.zerodev.clen.domain.model.ScanSource
 import com.zerodev.clen.domain.model.ScanStatus
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -43,6 +44,7 @@ class ClenDatabaseTest {
             mimeType = "application/vnd.android.package-archive",
             lastModified = 1_700_000_000L,
             category = JunkCategory.RESIDUAL_APK,
+            source = ScanSource.DOWNLOADS,
             sha256 = null,
             perceptualHash = null,
         )
@@ -51,6 +53,15 @@ class ClenDatabaseTest {
 
         database.fileItemDao().observeByCategory(JunkCategory.RESIDUAL_APK).test {
             assertEquals(listOf(item), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        assertEquals(listOf(item), database.fileItemDao().getByUris(listOf(item.uri)))
+
+        database.fileItemDao().deleteByUris(listOf(item.uri))
+
+        database.fileItemDao().observeAll().test {
+            assertEquals(emptyList<FileItemEntity>(), awaitItem())
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -96,6 +107,7 @@ class ClenDatabaseTest {
         database.trashEntryDao().upsert(expired)
         database.trashEntryDao().upsert(active)
 
+        assertEquals(setOf(expired, active), database.trashEntryDao().getAll().toSet())
         assertEquals(listOf(expired), database.trashEntryDao().getExpired(nowMillis = 3_000L))
 
         database.trashEntryDao().deleteExpired(nowMillis = 3_000L)

@@ -189,12 +189,12 @@ These are important, but they should not block the first reliable cleaning loop.
 
 | ID | Status | Task | Depends On | Acceptance |
 |---|---|---|---|---|
-| MVP-4.1 | Todo | Add unit tests for scanner filters and threshold behavior. | MVP-1.6, MVP-1.7, MVP-1.8, MVP-1.9 | Tests cover default thresholds and edge cases. |
-| MVP-4.2 | Todo | Add unit tests for settings repository. | MVP-0.5 | Theme and thresholds persist correctly. |
-| MVP-4.3 | Todo | Add DAO tests for scan results and trash entries. | MVP-0.4, MVP-2.5 | Room insert/query/delete paths pass. |
-| MVP-4.4 | Todo | Add deletion executor tests with fake data sources. | MVP-2.3 | Permanent, restorable, skipped, and failed outcomes are covered. |
-| MVP-4.5 | Todo | Run API smoke checks on Android 8, Android 13, Android 14, and Android 15/16 target behavior. | MVP-3.8 | Permission and deletion flows match each API level. |
-| MVP-4.6 | Todo | Verify manifest policy posture. | MVP-2.10 | No `INTERNET`, no MES, no AccessibilityService; FGS types declared only as needed. |
+| MVP-4.1 | Done | Add unit tests for scanner filters and threshold behavior. | MVP-1.6, MVP-1.7, MVP-1.8, MVP-1.9 | Tests cover default thresholds and edge cases. |
+| MVP-4.2 | Done | Add unit tests for settings repository. | MVP-0.5 | Theme and thresholds persist correctly. |
+| MVP-4.3 | Done | Add DAO tests for scan results and trash entries. | MVP-0.4, MVP-2.5 | Room insert/query/delete paths pass. |
+| MVP-4.4 | Done | Add deletion executor tests with fake data sources. | MVP-2.3 | Permanent, restorable, skipped, and failed outcomes are covered. |
+| MVP-4.5 | Manual | Run API smoke checks on Android 8, Android 13, Android 14, and Android 15/16 target behavior. | MVP-3.8 | Permission and deletion flows match each API level. |
+| MVP-4.6 | Done | Verify manifest policy posture. | MVP-2.10 | No `INTERNET`, no MES, no AccessibilityService; FGS types declared only as needed. |
 
 **Exit Criteria**
 

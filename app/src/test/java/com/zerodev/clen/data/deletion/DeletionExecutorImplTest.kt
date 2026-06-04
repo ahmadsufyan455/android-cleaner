@@ -22,6 +22,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
@@ -93,4 +94,66 @@ class DeletionExecutorImplTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun unsupportedSourceIsSkipped() = runTest {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val item = FileItem(
+            uri = "file:///unsupported",
+            displayName = "unsupported",
+            sizeBytes = 1L,
+            mimeType = null,
+            lastModified = 1L,
+            category = JunkCategory.LARGE_FILE,
+            source = ScanSource.APP_PRIVATE,
+        )
+        val executor = createExecutor(context)
+
+        val result = executor.delete(
+            DeleteRequest(
+                items = listOf(item),
+                allowPermanentDelete = true,
+            ),
+        )
+
+        assertEquals(DeleteOutcomeStatus.SKIPPED, result.outcomes.single().status)
+    }
+
+    @Test
+    @Config(sdk = [30])
+    fun mediaStoreDeleteOnApi30RequiresPlatformConfirmation() = runTest {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val item = FileItem(
+            uri = "content://media/external/file/1",
+            displayName = "video.mp4",
+            sizeBytes = 1L,
+            mimeType = "video/mp4",
+            lastModified = 1L,
+            category = JunkCategory.LARGE_FILE,
+            source = ScanSource.MEDIASTORE,
+        )
+        val executor = createExecutor(context)
+
+        val result = executor.delete(
+            DeleteRequest(
+                items = listOf(item),
+                allowPermanentDelete = true,
+            ),
+        )
+
+        assertEquals(
+            DeleteOutcomeStatus.PLATFORM_CONFIRMATION_REQUIRED,
+            result.outcomes.single().status,
+        )
+    }
+
+    private fun createExecutor(
+        context: android.content.Context,
+    ): DeletionExecutorImpl = DeletionExecutorImpl(
+        context = context,
+        ownCacheDataSource = OwnCacheDataSource(context, FileTreeOperations()),
+        fileItemDao = database.fileItemDao(),
+        trashEntryDao = database.trashEntryDao(),
+        ioDispatcher = UnconfinedTestDispatcher(),
+    )
 }

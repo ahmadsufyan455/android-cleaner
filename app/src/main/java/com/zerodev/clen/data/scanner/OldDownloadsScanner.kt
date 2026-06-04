@@ -31,7 +31,8 @@ class OldDownloadsScanner @Inject constructor(
         if (!mediaPermissionCoordinator.hasAnyMediaReadAccess()) return@withContext emptyList()
 
         val oldFileThresholdDays = settingsRepository.settings.first().oldFileThresholdDays
-        val olderThanSeconds = (System.currentTimeMillis() / 1_000L) -
+        val nowMillis = System.currentTimeMillis()
+        val olderThanSeconds = (nowMillis / 1_000L) -
             oldFileThresholdDays * 24L * 60L * 60L
         val pathColumn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.MediaColumns.RELATIVE_PATH
@@ -43,6 +44,14 @@ class OldDownloadsScanner @Inject constructor(
             selection = "${MediaStore.Files.FileColumns.DATE_MODIFIED} <= ? AND $pathColumn LIKE ?",
             selectionArgs = arrayOf(olderThanSeconds.toString(), "%Download%"),
             sortOrder = "${MediaStore.Files.FileColumns.DATE_MODIFIED} ASC",
-        ).map { it.toFileItem(category = category, source = source) }
+        )
+            .filter {
+                ScannerRules.isOldDownload(
+                    lastModifiedSeconds = it.lastModifiedMillis / 1_000L,
+                    nowMillis = nowMillis,
+                    oldFileThresholdDays = oldFileThresholdDays,
+                )
+            }
+            .map { it.toFileItem(category = category, source = source) }
     }
 }
