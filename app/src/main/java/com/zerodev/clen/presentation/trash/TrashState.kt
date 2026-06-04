@@ -5,6 +5,7 @@ import com.zerodev.clen.domain.model.TrashEntry
 data class TrashState(
     val entries: List<TrashEntry> = emptyList(),
     val isWorking: Boolean = false,
-    val message: String? = null,
-    val errorMessage: String? = null,
+    val messageResId: Int? = null,
+    val messageArgs: List<Any> = emptyList(),
+    val errorMessageResId: Int? = null,
 )

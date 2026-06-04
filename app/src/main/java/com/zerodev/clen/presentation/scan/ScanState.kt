@@ -10,6 +10,8 @@ data class ScanState(
     val currentCategory: JunkCategory? = null,
     val foundItemCount: Int = 0,
     val totalBytesFound: Long = 0L,
+    val hasAnyMediaAccess: Boolean = false,
+    val hasFullMediaAccess: Boolean = false,
     val progressMessage: String? = null,
-    val errorMessage: String? = null,
+    val errorMessageResId: Int? = null,
 )

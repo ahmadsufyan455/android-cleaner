@@ -2,6 +2,8 @@ package com.zerodev.clen.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zerodev.clen.R
+import com.zerodev.clen.domain.repository.ScanRepository
 import com.zerodev.clen.domain.usecase.ClearOwnCacheUseCase
 import com.zerodev.clen.domain.usecase.GetOwnCacheSizeUseCase
 import com.zerodev.clen.domain.repository.SettingsRepository
@@ -11,6 +13,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -20,6 +23,7 @@ class HomeViewModel @Inject constructor(
     private val clearOwnCacheUseCase: ClearOwnCacheUseCase,
     private val settingsRepository: SettingsRepository,
     private val storageRepository: StorageRepository,
+    private val scanRepository: ScanRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> = _state.asStateFlow()
@@ -27,6 +31,7 @@ class HomeViewModel @Inject constructor(
     init {
         refreshCacheSize()
         refreshStorageStats()
+        observeDashboardState()
     }
 
     fun refreshCacheSize() {
@@ -34,7 +39,7 @@ class HomeViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     isLoadingCacheSize = true,
-                    errorMessage = null,
+                    errorMessageResId = null,
                 )
             }
 
@@ -47,11 +52,11 @@ class HomeViewModel @Inject constructor(
                         )
                     }
                 }
-                .onFailure { throwable ->
+                .onFailure {
                     _state.update {
                         it.copy(
                             isLoadingCacheSize = false,
-                            errorMessage = throwable.message ?: "Unable to read cache size",
+                            errorMessageResId = R.string.cache_size_error,
                         )
                     }
                 }
@@ -63,7 +68,7 @@ class HomeViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     isClearingCache = true,
-                    errorMessage = null,
+                    errorMessageResId = null,
                 )
             }
 
@@ -78,11 +83,11 @@ class HomeViewModel @Inject constructor(
                         )
                     }
                 }
-                .onFailure { throwable ->
+                .onFailure {
                     _state.update {
                         it.copy(
                             isClearingCache = false,
-                            errorMessage = throwable.message ?: "Unable to clear cache",
+                            errorMessageResId = R.string.clear_cache_error,
                         )
                     }
                 }
@@ -94,7 +99,7 @@ class HomeViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     isLoadingStorageStats = true,
-                    errorMessage = null,
+                    errorMessageResId = null,
                 )
             }
 
@@ -109,14 +114,34 @@ class HomeViewModel @Inject constructor(
                         )
                     }
                 }
-                .onFailure { throwable ->
+                .onFailure {
                     _state.update {
                         it.copy(
                             isLoadingStorageStats = false,
-                            errorMessage = throwable.message ?: "Unable to read storage",
+                            errorMessageResId = R.string.storage_overview_error,
                         )
                     }
                 }
+        }
+    }
+
+    private fun observeDashboardState() {
+        viewModelScope.launch {
+            combine(
+                settingsRepository.settings,
+                scanRepository.observeResults(),
+            ) { settings, scanItems ->
+                settings to scanItems
+            }.collect { (settings, scanItems) ->
+                _state.update {
+                    it.copy(
+                        latestScanBytes = scanItems.sumOf { item -> item.sizeBytes },
+                        latestScanItemCount = scanItems.size,
+                        lastScanAtMillis = settings.lastScanAtMillis,
+                        lastCleanAtMillis = settings.lastCleanAtMillis,
+                    )
+                }
+            }
         }
     }
 }

@@ -60,16 +60,19 @@ fun TrashScreen(
                 Text(text = stringResource(R.string.empty_trash))
             }
         }
-        state.message?.let { message ->
+        state.messageResId?.let { messageResId ->
             Text(
-                text = message,
+                text = stringResource(
+                    id = messageResId,
+                    *state.messageArgs.toTypedArray(),
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        state.errorMessage?.let { message ->
+        state.errorMessageResId?.let { messageResId ->
             Text(
-                text = message,
+                text = stringResource(messageResId),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.error,
             )

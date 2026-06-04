@@ -131,16 +131,19 @@ fun ScanResultsScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        state.cleanMessage?.let { message ->
+        state.cleanMessageResId?.let { messageResId ->
             Text(
-                text = message,
+                text = stringResource(
+                    id = messageResId,
+                    *state.cleanMessageArgs.toTypedArray(),
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        state.errorMessage?.let { message ->
+        state.errorMessageResId?.let { messageResId ->
             Text(
-                text = message,
+                text = stringResource(messageResId),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.error,
             )

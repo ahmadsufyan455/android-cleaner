@@ -2,6 +2,7 @@ package com.zerodev.clen.presentation.trash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zerodev.clen.R
 import com.zerodev.clen.domain.model.TrashEntry
 import com.zerodev.clen.domain.repository.TrashRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,8 +19,8 @@ class TrashViewModel @Inject constructor(
     private val trashRepository: TrashRepository,
 ) : ViewModel() {
     private val isWorking = MutableStateFlow(false)
-    private val message = MutableStateFlow<String?>(null)
-    private val errorMessage = MutableStateFlow<String?>(null)
+    private val message = MutableStateFlow<MessageState?>(null)
+    private val errorMessage = MutableStateFlow<Int?>(null)
 
     val state: StateFlow<TrashState> = combine(
         trashRepository.observeTrash(),
@@ -30,8 +31,9 @@ class TrashViewModel @Inject constructor(
         TrashState(
             entries = entries,
             isWorking = isWorking,
-            message = message,
-            errorMessage = errorMessage,
+            messageResId = message?.resId,
+            messageArgs = message?.args.orEmpty(),
+            errorMessageResId = errorMessage,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -46,9 +48,9 @@ class TrashViewModel @Inject constructor(
             errorMessage.value = null
             val restored = trashRepository.restore(entry)
             if (restored) {
-                message.value = "File restored."
+                message.value = MessageState(R.string.trash_restore_success)
             } else {
-                errorMessage.value = "Unable to restore this file."
+                errorMessage.value = R.string.trash_restore_error
             }
             isWorking.value = false
         }
@@ -60,8 +62,13 @@ class TrashViewModel @Inject constructor(
             message.value = null
             errorMessage.value = null
             val count = trashRepository.emptyTrash()
-            message.value = "$count trash entries removed."
+            message.value = MessageState(R.string.trash_empty_success, listOf(count))
             isWorking.value = false
         }
     }
+
+    private data class MessageState(
+        val resId: Int,
+        val args: List<Any> = emptyList(),
+    )
 }

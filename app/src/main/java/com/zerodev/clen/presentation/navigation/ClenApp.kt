@@ -185,6 +185,10 @@ fun ClenApp(
                 SettingsScreen(
                     state = settingsState,
                     onSafTreePicked = settingsViewModel::persistSafGrant,
+                    onThemeModeSelected = settingsViewModel::setThemeMode,
+                    onDynamicColorChanged = settingsViewModel::setDynamicColorEnabled,
+                    onLargeFileThresholdChanged = settingsViewModel::setLargeFileThresholdMb,
+                    onOldFileThresholdChanged = settingsViewModel::setOldFileThresholdDays,
                 )
             }
         }

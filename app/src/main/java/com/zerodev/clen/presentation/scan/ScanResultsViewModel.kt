@@ -2,6 +2,7 @@ package com.zerodev.clen.presentation.scan
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zerodev.clen.R
 import com.zerodev.clen.domain.deletion.DeletionExecutor
 import com.zerodev.clen.data.deletion.MediaStoreDeleteRequestFactory
 import com.zerodev.clen.domain.model.DeleteOutcomeStatus
@@ -28,8 +29,8 @@ class ScanResultsViewModel @Inject constructor(
 ) : ViewModel() {
     private val selectedUris = MutableStateFlow<Set<String>>(emptySet())
     private val expandedCategories = MutableStateFlow<Set<JunkCategory>>(emptySet())
-    private val cleanMessage = MutableStateFlow<String?>(null)
-    private val errorMessage = MutableStateFlow<String?>(null)
+    private val cleanMessage = MutableStateFlow<MessageState?>(null)
+    private val errorMessage = MutableStateFlow<Int?>(null)
     private val showPermanentDeleteWarning = MutableStateFlow(false)
     private val isCleaning = MutableStateFlow(false)
     private val pendingMediaDeleteRequest = MutableStateFlow<MediaDeleteRequest?>(null)
@@ -52,8 +53,8 @@ class ScanResultsViewModel @Inject constructor(
         val selectedUris = values[2] as Set<String>
         @Suppress("UNCHECKED_CAST")
         val expandedCategories = values[3] as Set<JunkCategory>
-        val cleanMessage = values[4] as String?
-        val errorMessage = values[5] as String?
+        val cleanMessage = values[4] as MessageState?
+        val errorMessage = values[5] as Int?
         val showPermanentDeleteWarning = values[6] as Boolean
         val isCleaning = values[7] as Boolean
         val pendingMediaDeleteRequest = values[8] as MediaDeleteRequest?
@@ -65,8 +66,9 @@ class ScanResultsViewModel @Inject constructor(
             expandedCategories = expandedCategories.ifEmpty {
                 items.map { it.category }.toSet()
             },
-            cleanMessage = cleanMessage,
-            errorMessage = errorMessage,
+            cleanMessageResId = cleanMessage?.resId,
+            cleanMessageArgs = cleanMessage?.args.orEmpty(),
+            errorMessageResId = errorMessage,
             showPermanentDeleteWarning = showPermanentDeleteWarning,
             isCleaning = isCleaning,
             pendingMediaDeleteRequest = pendingMediaDeleteRequest,
@@ -109,7 +111,7 @@ class ScanResultsViewModel @Inject constructor(
             selectedUris.value.forEach { uri ->
                 settingsRepository.addWhitelistedUri(uri)
             }
-            cleanMessage.value = "Selected items will be ignored in future scans."
+            cleanMessage.value = MessageState(R.string.whitelist_selected_message)
             selectedUris.value = emptySet()
         }
     }
@@ -142,41 +144,32 @@ class ScanResultsViewModel @Inject constructor(
                 )
             }.onSuccess { result ->
                 selectedUris.value = emptySet()
-                cleanMessage.value = buildString {
-                    append("${result.successfulCount} items cleaned")
-                    if (result.bytesDeleted > 0L) {
-                        append(".")
+                val platformUris = result.outcomes
+                    .filter { outcome ->
+                        outcome.status == DeleteOutcomeStatus.PLATFORM_CONFIRMATION_REQUIRED
                     }
-                if (result.platformConfirmationCount > 0) {
-                        val platformUris = result.outcomes
-                            .filter { outcome ->
-                                outcome.status == DeleteOutcomeStatus.PLATFORM_CONFIRMATION_REQUIRED
-                            }
-                            .map { outcome -> outcome.fileItem.uri }
-                        val pendingIntent = mediaStoreDeleteRequestFactory
-                            .createDeleteRequest(platformUris)
-                        if (pendingIntent != null) {
-                            pendingMediaDeleteRequest.value = MediaDeleteRequest(
-                                intentSender = pendingIntent.intentSender,
-                                uris = platformUris,
-                            )
-                            append(" Android confirmation is required for ${platformUris.size} items.")
-                        } else {
-                            append(" ${result.platformConfirmationCount} items need Android confirmation.")
-                        }
-                    }
-                    if (result.failedCount > 0) {
-                        append(" ${result.failedCount} items failed.")
-                    }
-                    val skipped = result.outcomes.count { outcome ->
-                        outcome.status == DeleteOutcomeStatus.SKIPPED
-                    }
-                    if (skipped > 0) {
-                        append(" $skipped items skipped.")
-                    }
+                    .map { outcome -> outcome.fileItem.uri }
+                val pendingIntent = mediaStoreDeleteRequestFactory.createDeleteRequest(platformUris)
+                if (pendingIntent != null) {
+                    pendingMediaDeleteRequest.value = MediaDeleteRequest(
+                        intentSender = pendingIntent.intentSender,
+                        uris = platformUris,
+                    )
                 }
+                val skipped = result.outcomes.count { outcome ->
+                    outcome.status == DeleteOutcomeStatus.SKIPPED
+                }
+                cleanMessage.value = MessageState(
+                    resId = R.string.clean_result_summary,
+                    args = listOf(
+                        result.successfulCount,
+                        result.platformConfirmationCount,
+                        result.failedCount,
+                        skipped,
+                    ),
+                )
             }.onFailure { throwable ->
-                errorMessage.value = throwable.message ?: "Unable to clean selected items."
+                errorMessage.value = R.string.clean_selected_error
             }
 
             isCleaning.value = false
@@ -192,10 +185,18 @@ class ScanResultsViewModel @Inject constructor(
             if (confirmed) {
                 scanRepository.removeResultsByUris(uris)
                 selectedUris.update { current -> current - uris.toSet() }
-                cleanMessage.value = "Android deleted ${uris.size} items."
+                cleanMessage.value = MessageState(
+                    R.string.media_delete_confirmed,
+                    listOf(uris.size),
+                )
             } else {
-                cleanMessage.value = "Android delete confirmation was cancelled."
+                cleanMessage.value = MessageState(R.string.media_delete_cancelled)
             }
         }
     }
+
+    private data class MessageState(
+        val resId: Int,
+        val args: List<Any> = emptyList(),
+    )
 }

@@ -6,8 +6,10 @@ import android.text.format.Formatter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -19,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.zerodev.clen.R
+import com.zerodev.clen.domain.model.JunkCategory
 
 @Composable
 fun ScanScreen(
@@ -40,8 +43,8 @@ fun ScanScreen(
         modifier = modifier
             .fillMaxSize()
             .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.Start,
     ) {
         Text(
             text = stringResource(R.string.scan_title),
@@ -52,22 +55,57 @@ fun ScanScreen(
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(top = 8.dp),
         )
+        if (!state.hasFullMediaAccess) {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.reduced_scan_title),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
+                        text = if (state.hasAnyMediaAccess) {
+                            stringResource(R.string.reduced_scan_partial)
+                        } else {
+                            stringResource(R.string.reduced_scan_denied)
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
         if (state.isScanning) {
-            CircularProgressIndicator(modifier = Modifier.padding(top = 24.dp))
-            Text(
-                text = stringResource(R.string.scan_running_value, bytesFound, state.foundItemCount),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 16.dp),
-            )
-            Text(
-                text = stringResource(R.string.scan_current_category),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp),
-            )
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    CircularProgressIndicator()
+                    Text(
+                        text = stringResource(
+                            R.string.scan_running_value,
+                            bytesFound,
+                            state.foundItemCount,
+                        ),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.scan_current_category_value,
+                            state.currentCategory?.label() ?: stringResource(R.string.scan_category_preparing),
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
             OutlinedButton(
                 onClick = onCancelScanClick,
-                modifier = Modifier.padding(top = 24.dp),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(text = stringResource(R.string.cancel_scan))
             }
@@ -75,10 +113,13 @@ fun ScanScreen(
             state.status?.let { status ->
                 Text(
                     text = stringResource(
-                        when (status.name) {
-                            "COMPLETED" -> R.string.scan_status_completed
-                            "CANCELLED" -> R.string.scan_status_cancelled
-                            "FAILED" -> R.string.scan_status_failed
+                        when (status) {
+                            com.zerodev.clen.domain.model.ScanStatus.COMPLETED ->
+                                R.string.scan_status_completed
+                            com.zerodev.clen.domain.model.ScanStatus.CANCELLED ->
+                                R.string.scan_status_cancelled
+                            com.zerodev.clen.domain.model.ScanStatus.FAILED ->
+                                R.string.scan_status_failed
                             else -> R.string.scan_status_idle
                         },
                     ),
@@ -87,9 +128,9 @@ fun ScanScreen(
                     modifier = Modifier.padding(top = 16.dp),
                 )
             }
-            state.errorMessage?.let { errorMessage ->
+            state.errorMessageResId?.let { errorMessageResId ->
                 Text(
-                    text = errorMessage,
+                    text = stringResource(errorMessageResId),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(top = 8.dp),
@@ -103,16 +144,32 @@ fun ScanScreen(
                         mediaPermissionLauncher.launch(state.mediaPermissions.toTypedArray())
                     }
                 },
-                modifier = Modifier.padding(top = 24.dp),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(text = stringResource(R.string.start_scan))
             }
             OutlinedButton(
                 onClick = onViewResultsClick,
-                modifier = Modifier.padding(top = 12.dp),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(text = stringResource(R.string.view_results))
             }
         }
     }
 }
+
+@Composable
+private fun JunkCategory.label(): String =
+    stringResource(
+        when (this) {
+            JunkCategory.OWN_CACHE -> R.string.category_own_cache
+            JunkCategory.RESIDUAL_APK -> R.string.category_residual_apk
+            JunkCategory.LARGE_FILE -> R.string.category_large_file
+            JunkCategory.EMPTY_FOLDER -> R.string.category_empty_folder
+            JunkCategory.OLD_DOWNLOAD -> R.string.category_old_download
+            JunkCategory.DUPLICATE_FILE -> R.string.category_duplicate_file
+            JunkCategory.DUPLICATE_PHOTO -> R.string.category_duplicate_photo
+            JunkCategory.OLD_SCREENSHOT -> R.string.category_old_screenshot
+            JunkCategory.WHATSAPP_MEDIA -> R.string.category_whatsapp_media
+        },
+    )

@@ -2,6 +2,7 @@ package com.zerodev.clen.presentation.scan
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zerodev.clen.R
 import com.zerodev.clen.data.permission.MediaPermissionCoordinator
 import com.zerodev.clen.domain.model.ScanStatus
 import com.zerodev.clen.domain.repository.ScanRepository
@@ -19,10 +20,14 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class ScanViewModel @Inject constructor(
     private val scanRepository: ScanRepository,
-    mediaPermissionCoordinator: MediaPermissionCoordinator,
+    private val mediaPermissionCoordinator: MediaPermissionCoordinator,
 ) : ViewModel() {
     private val _state = MutableStateFlow(
-        ScanState(mediaPermissions = mediaPermissionCoordinator.requiredPermissions()),
+        ScanState(
+            mediaPermissions = mediaPermissionCoordinator.requiredPermissions(),
+            hasAnyMediaAccess = mediaPermissionCoordinator.hasAnyMediaReadAccess(),
+            hasFullMediaAccess = mediaPermissionCoordinator.hasFullRequestedAccess(),
+        ),
     )
     val state: StateFlow<ScanState> = _state.asStateFlow()
 
@@ -31,14 +36,21 @@ class ScanViewModel @Inject constructor(
     fun startScan() {
         if (scanJob?.isActive == true) return
 
+        _state.update {
+            it.copy(
+                hasAnyMediaAccess = mediaPermissionCoordinator.hasAnyMediaReadAccess(),
+                hasFullMediaAccess = mediaPermissionCoordinator.hasFullRequestedAccess(),
+            )
+        }
+
         scanJob = viewModelScope.launch {
             scanRepository.runScan()
-                .catch { throwable ->
+                .catch {
                     _state.update {
                         it.copy(
                             isScanning = false,
                             status = ScanStatus.FAILED,
-                            errorMessage = throwable.message ?: "Scan failed",
+                            errorMessageResId = R.string.scan_error,
                         )
                     }
                 }
@@ -56,7 +68,7 @@ class ScanViewModel @Inject constructor(
                             foundItemCount = progress.foundItemCount,
                             totalBytesFound = progress.totalBytesFound,
                             progressMessage = progress.message,
-                            errorMessage = null,
+                            errorMessageResId = null,
                         )
                     }
                 }

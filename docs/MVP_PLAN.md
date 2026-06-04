@@ -165,14 +165,14 @@ These are important, but they should not block the first reliable cleaning loop.
 
 | ID | Status | Task | Depends On | Acceptance |
 |---|---|---|---|---|
-| MVP-3.1 | Todo | Build Home dashboard with storage totals, scan summary, last cleaned, and Quick Clean CTA. | MVP-1.3, MVP-1.10 | Home reflects scan state accurately. |
-| MVP-3.2 | Todo | Build Scan screen with progress, current category, and cancel action. | MVP-1.11 | Progress updates at least every 500ms. |
-| MVP-3.3 | Todo | Build Settings screen for theme and thresholds. | MVP-0.5 | Changes apply immediately and persist. |
-| MVP-3.4 | Todo | Add permission state rows and deep links to system settings. | MVP-1.4, MVP-1.5 | Permission state is visible and actionable. |
-| MVP-3.5 | Todo | Add designed empty and error states for Home, Scan, Results, Settings, Trash. | MVP-2.9 | No raw stack traces or blank states are visible. |
-| MVP-3.6 | Todo | Ensure all user-facing text comes from string resources. | MVP-3.5 | Hardcoded user-facing strings are removed from Compose. |
-| MVP-3.7 | Todo | Accessibility pass: labels, touch targets, contrast, TalkBack order. | MVP-3.5 | Core flows are usable with TalkBack. |
-| MVP-3.8 | Todo | Basic performance pass for scan memory and UI frame stability. | MVP-1.11, MVP-3.2 | Scan does not block UI on a representative device/emulator. |
+| MVP-3.1 | Done | Build Home dashboard with storage totals, scan summary, last cleaned, and Quick Clean CTA. | MVP-1.3, MVP-1.10 | Home reflects scan state accurately. |
+| MVP-3.2 | Done | Build Scan screen with progress, current category, and cancel action. | MVP-1.11 | Progress updates at least every 500ms. |
+| MVP-3.3 | Done | Build Settings screen for theme and thresholds. | MVP-0.5 | Changes apply immediately and persist. |
+| MVP-3.4 | Done | Add permission state rows and deep links to system settings. | MVP-1.4, MVP-1.5 | Permission state is visible and actionable. |
+| MVP-3.5 | Done | Add designed empty and error states for Home, Scan, Results, Settings, Trash. | MVP-2.9 | No raw stack traces or blank states are visible. |
+| MVP-3.6 | Done | Ensure all user-facing text comes from string resources. | MVP-3.5 | Hardcoded user-facing strings are removed from Compose. |
+| MVP-3.7 | Done | Accessibility pass: labels, touch targets, contrast, TalkBack order. | MVP-3.5 | Core flows are usable with TalkBack. |
+| MVP-3.8 | Done | Basic performance pass for scan memory and UI frame stability. | MVP-1.11, MVP-3.2 | Scan does not block UI on a representative device/emulator. |
 
 **Exit Criteria**
 
