@@ -52,6 +52,7 @@ class SettingsRepositoryImplTest {
         repository.setOnboardingCompleted(true)
         repository.setLastScanAtMillis(10_000L)
         repository.setLastCleanAtMillis(20_000L)
+        repository.addSafTreeUri("content://tree/downloads")
 
         repository.settings.test {
             assertEquals(
@@ -65,6 +66,7 @@ class SettingsRepositoryImplTest {
                     onboardingCompleted = true,
                     lastScanAtMillis = 10_000L,
                     lastCleanAtMillis = 20_000L,
+                    safTreeUris = setOf("content://tree/downloads"),
                 ),
                 awaitItem(),
             )
@@ -82,6 +84,19 @@ class SettingsRepositoryImplTest {
 
         repository.settings.test {
             assertEquals(null, awaitItem().lastScanAtMillis)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun safTreeUrisCanBeRemoved() = runTest {
+        repository.addSafTreeUri("content://tree/downloads")
+        repository.addSafTreeUri("content://tree/pictures")
+
+        repository.removeSafTreeUri("content://tree/downloads")
+
+        repository.settings.test {
+            assertEquals(setOf("content://tree/pictures"), awaitItem().safTreeUris)
             cancelAndIgnoreRemainingEvents()
         }
     }

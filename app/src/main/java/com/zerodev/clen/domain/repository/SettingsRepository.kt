@@ -26,4 +26,8 @@ interface SettingsRepository {
     suspend fun setLastScanAtMillis(timestampMillis: Long?)
 
     suspend fun setLastCleanAtMillis(timestampMillis: Long?)
+
+    suspend fun addSafTreeUri(uri: String)
+
+    suspend fun removeSafTreeUri(uri: String)
 }

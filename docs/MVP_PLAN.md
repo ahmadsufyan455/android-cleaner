@@ -111,17 +111,17 @@ These are important, but they should not block the first reliable cleaning loop.
 
 | ID | Status | Task | Depends On | Acceptance |
 |---|---|---|---|---|
-| MVP-1.1 | Todo | Define domain models: `FileItem`, `JunkCategory`, `ScanRun`, `ScanProgress`, `ScanStatus`, `ScanSource`. | MVP-0.4 | Models are independent from Android framework types where practical. |
-| MVP-1.2 | Todo | Define scanner interfaces: `CategoryScanner`, `ScanEngine`, `ScanRepository`. | MVP-1.1 | Scanners can emit progress and results via Flow. |
-| MVP-1.3 | Todo | Implement `StorageProbe` using `StorageManager`/`StatFs` for total, used, and free storage. | MVP-0.2 | Dashboard values are within 1% of system values. |
-| MVP-1.4 | Todo | Implement media permission coordinator for API 26-36. | MVP-0.6 | Requests correct permission set per API level and handles denial. |
-| MVP-1.5 | Todo | Implement SAF tree grant flow with persisted URI permission. | MVP-0.6 | User can grant a folder and see grant state after restart. |
-| MVP-1.6 | Todo | Implement residual APK scanner for Downloads. | MVP-1.2, MVP-1.4 | APKs older than 7 days are flagged. |
-| MVP-1.7 | Todo | Implement large file scanner for MediaStore and SAF grants. | MVP-1.2, MVP-1.4, MVP-1.5 | Files above threshold appear sorted by size. |
-| MVP-1.8 | Todo | Implement old downloads scanner. | MVP-1.2, MVP-1.4 | Downloads older than configured threshold are flagged. |
-| MVP-1.9 | Todo | Implement empty folder scanner for SAF tree URIs. | MVP-1.5 | Recursive empty folders are detected only inside granted trees. |
-| MVP-1.10 | Todo | Persist scan runs and results in Room. | MVP-1.2, MVP-0.4 | Previous completed scan is visible after app restart. |
-| MVP-1.11 | Todo | Add scan cancellation and progress aggregation. | MVP-1.2 | Cancel stops work promptly and leaves a `CANCELLED` scan run. |
+| MVP-1.1 | Done | Define domain models: `FileItem`, `JunkCategory`, `ScanRun`, `ScanProgress`, `ScanStatus`, `ScanSource`. | MVP-0.4 | Models are independent from Android framework types where practical. |
+| MVP-1.2 | Done | Define scanner interfaces: `CategoryScanner`, `ScanEngine`, `ScanRepository`. | MVP-1.1 | Scanners can emit progress and results via Flow. |
+| MVP-1.3 | Done | Implement `StorageProbe` using `StorageManager`/`StatFs` for total, used, and free storage. | MVP-0.2 | Dashboard values are within 1% of system values. |
+| MVP-1.4 | Done | Implement media permission coordinator for API 26-36. | MVP-0.6 | Requests correct permission set per API level and handles denial. |
+| MVP-1.5 | Done | Implement SAF tree grant flow with persisted URI permission. | MVP-0.6 | User can grant a folder and see grant state after restart. |
+| MVP-1.6 | Done | Implement residual APK scanner for Downloads. | MVP-1.2, MVP-1.4 | APKs older than 7 days are flagged. |
+| MVP-1.7 | Done | Implement large file scanner for MediaStore and SAF grants. | MVP-1.2, MVP-1.4, MVP-1.5 | Files above threshold appear sorted by size. |
+| MVP-1.8 | Done | Implement old downloads scanner. | MVP-1.2, MVP-1.4 | Downloads older than configured threshold are flagged. |
+| MVP-1.9 | Done | Implement empty folder scanner for SAF tree URIs. | MVP-1.5 | Recursive empty folders are detected only inside granted trees. |
+| MVP-1.10 | Done | Persist scan runs and results in Room. | MVP-1.2, MVP-0.4 | Previous completed scan is visible after app restart. |
+| MVP-1.11 | Done | Add scan cancellation and progress aggregation. | MVP-1.2 | Cancel stops work promptly and leaves a `CANCELLED` scan run. |
 
 **Exit Criteria**
 

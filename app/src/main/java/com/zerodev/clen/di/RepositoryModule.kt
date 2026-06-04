@@ -1,7 +1,11 @@
 package com.zerodev.clen.di
 
 import com.zerodev.clen.data.repository.OwnCacheRepositoryImpl
+import com.zerodev.clen.data.repository.ScanRepositoryImpl
+import com.zerodev.clen.data.repository.StorageRepositoryImpl
 import com.zerodev.clen.domain.repository.OwnCacheRepository
+import com.zerodev.clen.domain.repository.ScanRepository
+import com.zerodev.clen.domain.repository.StorageRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -16,4 +20,16 @@ interface RepositoryModule {
     fun bindOwnCacheRepository(
         implementation: OwnCacheRepositoryImpl,
     ): OwnCacheRepository
+
+    @Binds
+    @Singleton
+    fun bindScanRepository(
+        implementation: ScanRepositoryImpl,
+    ): ScanRepository
+
+    @Binds
+    @Singleton
+    fun bindStorageRepository(
+        implementation: StorageRepositoryImpl,
+    ): StorageRepository
 }

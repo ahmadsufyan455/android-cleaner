@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.zerodev.clen.domain.model.LanguageMode
 import com.zerodev.clen.domain.model.ScheduleMode
@@ -96,6 +97,20 @@ class SettingsRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun addSafTreeUri(uri: String) {
+        dataStore.edit { preferences ->
+            val existingUris = preferences[Keys.SAF_TREE_URIS].orEmpty()
+            preferences[Keys.SAF_TREE_URIS] = existingUris + uri
+        }
+    }
+
+    override suspend fun removeSafTreeUri(uri: String) {
+        dataStore.edit { preferences ->
+            val existingUris = preferences[Keys.SAF_TREE_URIS].orEmpty()
+            preferences[Keys.SAF_TREE_URIS] = existingUris - uri
+        }
+    }
+
     private fun Preferences.toSettingsModel(): SettingsModel = SettingsModel(
         themeMode = enumOrDefault(this[Keys.THEME_MODE], ThemeMode.SYSTEM),
         dynamicColorEnabled = this[Keys.DYNAMIC_COLOR_ENABLED] ?: true,
@@ -108,6 +123,7 @@ class SettingsRepositoryImpl @Inject constructor(
         onboardingCompleted = this[Keys.ONBOARDING_COMPLETED] ?: false,
         lastScanAtMillis = this[Keys.LAST_SCAN_AT_MILLIS],
         lastCleanAtMillis = this[Keys.LAST_CLEAN_AT_MILLIS],
+        safTreeUris = this[Keys.SAF_TREE_URIS].orEmpty().toSortedSet(),
     )
 
     private inline fun <reified T : Enum<T>> enumOrDefault(
@@ -125,5 +141,6 @@ class SettingsRepositoryImpl @Inject constructor(
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val LAST_SCAN_AT_MILLIS = longPreferencesKey("last_scan_at_millis")
         val LAST_CLEAN_AT_MILLIS = longPreferencesKey("last_clean_at_millis")
+        val SAF_TREE_URIS = stringSetPreferencesKey("saf_tree_uris")
     }
 }

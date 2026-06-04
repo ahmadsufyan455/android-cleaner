@@ -30,6 +30,9 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val cacheSize = Formatter.formatFileSize(context, state.cacheSizeBytes)
+    val storageUsed = Formatter.formatFileSize(context, state.storageUsedBytes)
+    val storageTotal = Formatter.formatFileSize(context, state.storageTotalBytes)
+    val storageFree = Formatter.formatFileSize(context, state.storageFreeBytes)
     val lastCleared = state.lastClearedBytes?.let { Formatter.formatFileSize(context, it) }
 
     Column(
@@ -48,6 +51,34 @@ fun HomeScreen(
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(top = 8.dp),
         )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.storage_overview_title),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    text = if (state.isLoadingStorageStats) {
+                        stringResource(R.string.storage_overview_loading)
+                    } else {
+                        stringResource(R.string.storage_overview_value, storageUsed, storageTotal)
+                    },
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                if (!state.isLoadingStorageStats) {
+                    Text(
+                        text = stringResource(R.string.storage_free_value, storageFree),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
         Card(
             modifier = Modifier.fillMaxWidth(),
         ) {

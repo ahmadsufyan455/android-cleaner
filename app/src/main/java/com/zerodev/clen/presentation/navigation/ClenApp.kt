@@ -32,8 +32,11 @@ import com.zerodev.clen.presentation.home.HomeScreen
 import com.zerodev.clen.presentation.home.HomeViewModel
 import com.zerodev.clen.presentation.onboarding.OnboardingScreen
 import com.zerodev.clen.presentation.scan.ScanResultsScreen
+import com.zerodev.clen.presentation.scan.ScanResultsViewModel
 import com.zerodev.clen.presentation.scan.ScanScreen
+import com.zerodev.clen.presentation.scan.ScanViewModel
 import com.zerodev.clen.presentation.settings.SettingsScreen
+import com.zerodev.clen.presentation.settings.SettingsViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -128,17 +131,32 @@ fun ClenApp(
                 )
             }
             composable(ClenRoute.Scan.route) {
+                val scanViewModel: ScanViewModel = hiltViewModel()
+                val scanState by scanViewModel.state.collectAsState()
+
                 ScanScreen(
+                    state = scanState,
+                    onStartScanClick = scanViewModel::startScan,
+                    onCancelScanClick = scanViewModel::cancelScan,
                     onViewResultsClick = {
                         navController.navigate(ClenRoute.ScanResults.route)
                     },
                 )
             }
             composable(ClenRoute.ScanResults.route) {
-                ScanResultsScreen()
+                val resultsViewModel: ScanResultsViewModel = hiltViewModel()
+                val resultsState by resultsViewModel.state.collectAsState()
+
+                ScanResultsScreen(state = resultsState)
             }
             composable(ClenRoute.Settings.route) {
-                SettingsScreen()
+                val settingsViewModel: SettingsViewModel = hiltViewModel()
+                val settingsState by settingsViewModel.state.collectAsState()
+
+                SettingsScreen(
+                    state = settingsState,
+                    onSafTreePicked = settingsViewModel::persistSafGrant,
+                )
             }
         }
     }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.zerodev.clen.domain.usecase.ClearOwnCacheUseCase
 import com.zerodev.clen.domain.usecase.GetOwnCacheSizeUseCase
 import com.zerodev.clen.domain.repository.SettingsRepository
+import com.zerodev.clen.domain.repository.StorageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,12 +19,14 @@ class HomeViewModel @Inject constructor(
     private val getOwnCacheSizeUseCase: GetOwnCacheSizeUseCase,
     private val clearOwnCacheUseCase: ClearOwnCacheUseCase,
     private val settingsRepository: SettingsRepository,
+    private val storageRepository: StorageRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> = _state.asStateFlow()
 
     init {
         refreshCacheSize()
+        refreshStorageStats()
     }
 
     fun refreshCacheSize() {
@@ -80,6 +83,37 @@ class HomeViewModel @Inject constructor(
                         it.copy(
                             isClearingCache = false,
                             errorMessage = throwable.message ?: "Unable to clear cache",
+                        )
+                    }
+                }
+        }
+    }
+
+    fun refreshStorageStats() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isLoadingStorageStats = true,
+                    errorMessage = null,
+                )
+            }
+
+            runCatching { storageRepository.getPrimaryStorageStats() }
+                .onSuccess { storageStats ->
+                    _state.update {
+                        it.copy(
+                            storageTotalBytes = storageStats.totalBytes,
+                            storageUsedBytes = storageStats.usedBytes,
+                            storageFreeBytes = storageStats.freeBytes,
+                            isLoadingStorageStats = false,
+                        )
+                    }
+                }
+                .onFailure { throwable ->
+                    _state.update {
+                        it.copy(
+                            isLoadingStorageStats = false,
+                            errorMessage = throwable.message ?: "Unable to read storage",
                         )
                     }
                 }
