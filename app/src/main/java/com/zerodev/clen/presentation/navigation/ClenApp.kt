@@ -13,11 +13,13 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -27,6 +29,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.zerodev.clen.R
 import com.zerodev.clen.presentation.home.HomeScreen
+import com.zerodev.clen.presentation.home.HomeViewModel
 import com.zerodev.clen.presentation.onboarding.OnboardingScreen
 import com.zerodev.clen.presentation.scan.ScanResultsScreen
 import com.zerodev.clen.presentation.scan.ScanScreen
@@ -110,12 +113,18 @@ fun ClenApp(
                 )
             }
             composable(ClenRoute.Home.route) {
+                val homeViewModel: HomeViewModel = hiltViewModel()
+                val homeState by homeViewModel.state.collectAsState()
+
                 HomeScreen(
+                    state = homeState,
                     onQuickCleanClick = {
                         navController.navigate(ClenRoute.Scan.route) {
                             launchSingleTop = true
                         }
                     },
+                    onRefreshCacheClick = homeViewModel::refreshCacheSize,
+                    onClearCacheClick = homeViewModel::clearOwnCache,
                 )
             }
             composable(ClenRoute.Scan.route) {
