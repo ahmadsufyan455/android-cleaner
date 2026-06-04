@@ -30,4 +30,8 @@ interface SettingsRepository {
     suspend fun addSafTreeUri(uri: String)
 
     suspend fun removeSafTreeUri(uri: String)
+
+    suspend fun addWhitelistedUri(uri: String)
+
+    suspend fun removeWhitelistedUri(uri: String)
 }

@@ -11,6 +11,7 @@ data class SettingsModel(
     val lastScanAtMillis: Long? = null,
     val lastCleanAtMillis: Long? = null,
     val safTreeUris: Set<String> = emptySet(),
+    val whitelistedUris: Set<String> = emptySet(),
 ) {
     companion object {
         const val DEFAULT_LARGE_FILE_THRESHOLD_BYTES = 100L * 1024L * 1024L

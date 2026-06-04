@@ -53,6 +53,7 @@ class SettingsRepositoryImplTest {
         repository.setLastScanAtMillis(10_000L)
         repository.setLastCleanAtMillis(20_000L)
         repository.addSafTreeUri("content://tree/downloads")
+        repository.addWhitelistedUri("content://downloads/keep")
 
         repository.settings.test {
             assertEquals(
@@ -67,6 +68,7 @@ class SettingsRepositoryImplTest {
                     lastScanAtMillis = 10_000L,
                     lastCleanAtMillis = 20_000L,
                     safTreeUris = setOf("content://tree/downloads"),
+                    whitelistedUris = setOf("content://downloads/keep"),
                 ),
                 awaitItem(),
             )
@@ -97,6 +99,19 @@ class SettingsRepositoryImplTest {
 
         repository.settings.test {
             assertEquals(setOf("content://tree/pictures"), awaitItem().safTreeUris)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun whitelistedUrisCanBeRemoved() = runTest {
+        repository.addWhitelistedUri("content://downloads/keep")
+        repository.addWhitelistedUri("content://downloads/tmp")
+
+        repository.removeWhitelistedUri("content://downloads/tmp")
+
+        repository.settings.test {
+            assertEquals(setOf("content://downloads/keep"), awaitItem().whitelistedUris)
             cancelAndIgnoreRemainingEvents()
         }
     }

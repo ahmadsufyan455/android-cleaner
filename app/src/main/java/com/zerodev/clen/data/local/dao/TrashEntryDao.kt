@@ -15,11 +15,17 @@ interface TrashEntryDao {
     @Query("SELECT * FROM trash_entries WHERE expiresAt <= :nowMillis")
     suspend fun getExpired(nowMillis: Long): List<TrashEntryEntity>
 
+    @Query("SELECT * FROM trash_entries")
+    suspend fun getAll(): List<TrashEntryEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entry: TrashEntryEntity)
 
     @Query("DELETE FROM trash_entries WHERE id = :id")
     suspend fun deleteById(id: String)
+
+    @Query("DELETE FROM trash_entries")
+    suspend fun deleteAll()
 
     @Query("DELETE FROM trash_entries WHERE expiresAt <= :nowMillis")
     suspend fun deleteExpired(nowMillis: Long)

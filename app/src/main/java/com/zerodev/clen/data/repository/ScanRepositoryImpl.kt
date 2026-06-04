@@ -19,6 +19,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
@@ -66,8 +67,16 @@ class ScanRepositoryImpl @Inject constructor(
                     fileItemDao.deleteAll()
                 }
 
-                latestProgress = progress
-                fileItemDao.upsertAll(progress.items.map { it.toEntity() })
+                val whitelistedUris = settingsRepository.settings.first().whitelistedUris
+                val filteredItems = progress.items.filterNot { item ->
+                    item.uri in whitelistedUris
+                }
+                latestProgress = progress.copy(
+                    items = filteredItems,
+                    foundItemCount = filteredItems.size,
+                    totalBytesFound = filteredItems.sumOf { it.sizeBytes },
+                )
+                fileItemDao.upsertAll(filteredItems.map { it.toEntity() })
             }
             .onCompletion { throwable ->
                 val existingRun = scanRun ?: return@onCompletion
@@ -94,5 +103,9 @@ class ScanRepositoryImpl @Inject constructor(
                 if (throwable is CancellationException) throw throwable
                 emit(latestProgress.copy(status = ScanStatus.FAILED, message = throwable.message))
             }
+    }
+
+    override suspend fun removeResultsByUris(uris: List<String>) {
+        fileItemDao.deleteByUris(uris)
     }
 }

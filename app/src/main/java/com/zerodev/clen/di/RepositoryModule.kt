@@ -3,9 +3,11 @@ package com.zerodev.clen.di
 import com.zerodev.clen.data.repository.OwnCacheRepositoryImpl
 import com.zerodev.clen.data.repository.ScanRepositoryImpl
 import com.zerodev.clen.data.repository.StorageRepositoryImpl
+import com.zerodev.clen.data.repository.TrashRepositoryImpl
 import com.zerodev.clen.domain.repository.OwnCacheRepository
 import com.zerodev.clen.domain.repository.ScanRepository
 import com.zerodev.clen.domain.repository.StorageRepository
+import com.zerodev.clen.domain.repository.TrashRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -32,4 +34,10 @@ interface RepositoryModule {
     fun bindStorageRepository(
         implementation: StorageRepositoryImpl,
     ): StorageRepository
+
+    @Binds
+    @Singleton
+    fun bindTrashRepository(
+        implementation: TrashRepositoryImpl,
+    ): TrashRepository
 }

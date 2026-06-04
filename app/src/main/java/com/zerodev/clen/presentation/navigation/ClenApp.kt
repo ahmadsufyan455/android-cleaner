@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
@@ -37,6 +38,8 @@ import com.zerodev.clen.presentation.scan.ScanScreen
 import com.zerodev.clen.presentation.scan.ScanViewModel
 import com.zerodev.clen.presentation.settings.SettingsScreen
 import com.zerodev.clen.presentation.settings.SettingsViewModel
+import com.zerodev.clen.presentation.trash.TrashScreen
+import com.zerodev.clen.presentation.trash.TrashViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -59,6 +62,11 @@ fun ClenApp(
             route = ClenRoute.Scan.route,
             labelResId = R.string.scan_title,
             icon = Icons.Outlined.Search,
+        ),
+        TopLevelDestination(
+            route = ClenRoute.Trash.route,
+            labelResId = R.string.trash_title,
+            icon = Icons.Outlined.Delete,
         ),
         TopLevelDestination(
             route = ClenRoute.Settings.route,
@@ -147,7 +155,28 @@ fun ClenApp(
                 val resultsViewModel: ScanResultsViewModel = hiltViewModel()
                 val resultsState by resultsViewModel.state.collectAsState()
 
-                ScanResultsScreen(state = resultsState)
+                ScanResultsScreen(
+                    state = resultsState,
+                    onToggleItem = resultsViewModel::toggleItem,
+                    onToggleCategory = resultsViewModel::toggleCategory,
+                    onSetCategorySelected = resultsViewModel::setCategorySelected,
+                    onWhitelistSelected = resultsViewModel::whitelistSelected,
+                    onCleanSelected = resultsViewModel::requestCleanSelected,
+                    onConfirmCleanSelected = resultsViewModel::confirmCleanSelected,
+                    onDismissCleanConfirmation = resultsViewModel::dismissCleanConfirmation,
+                    onMediaDeleteRequestConsumed = resultsViewModel::consumeMediaDeleteRequest,
+                    onMediaDeleteResult = resultsViewModel::onMediaDeleteResult,
+                )
+            }
+            composable(ClenRoute.Trash.route) {
+                val trashViewModel: TrashViewModel = hiltViewModel()
+                val trashState by trashViewModel.state.collectAsState()
+
+                TrashScreen(
+                    state = trashState,
+                    onRestoreClick = trashViewModel::restore,
+                    onEmptyTrashClick = trashViewModel::emptyTrash,
+                )
             }
             composable(ClenRoute.Settings.route) {
                 val settingsViewModel: SettingsViewModel = hiltViewModel()

@@ -2,6 +2,7 @@ package com.zerodev.clen.data.local
 
 import androidx.room.TypeConverter
 import com.zerodev.clen.domain.model.JunkCategory
+import com.zerodev.clen.domain.model.ScanSource
 import com.zerodev.clen.domain.model.ScanStatus
 
 class RoomTypeConverters {
@@ -16,4 +17,10 @@ class RoomTypeConverters {
 
     @TypeConverter
     fun stringToScanStatus(value: String): ScanStatus = ScanStatus.valueOf(value)
+
+    @TypeConverter
+    fun scanSourceToString(value: ScanSource): String = value.name
+
+    @TypeConverter
+    fun stringToScanSource(value: String): ScanSource = ScanSource.valueOf(value)
 }

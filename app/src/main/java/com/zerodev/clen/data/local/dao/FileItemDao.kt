@@ -16,6 +16,9 @@ interface FileItemDao {
     @Query("SELECT * FROM file_items WHERE category = :category ORDER BY sizeBytes DESC")
     fun observeByCategory(category: JunkCategory): Flow<List<FileItemEntity>>
 
+    @Query("SELECT * FROM file_items WHERE uri IN (:uris)")
+    suspend fun getByUris(uris: List<String>): List<FileItemEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(items: List<FileItemEntity>)
 

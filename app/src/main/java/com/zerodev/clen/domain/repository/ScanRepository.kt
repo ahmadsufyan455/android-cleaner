@@ -11,4 +11,6 @@ interface ScanRepository {
     fun observeResults(): Flow<List<FileItem>>
 
     fun runScan(): Flow<ScanProgress>
+
+    suspend fun removeResultsByUris(uris: List<String>)
 }

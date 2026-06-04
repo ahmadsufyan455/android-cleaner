@@ -139,16 +139,16 @@ These are important, but they should not block the first reliable cleaning loop.
 
 | ID | Status | Task | Depends On | Acceptance |
 |---|---|---|---|---|
-| MVP-2.1 | Todo | Build scan results screen grouped by category with expandable lists and multi-select. | MVP-1.10 | User can select/deselect files and categories. |
-| MVP-2.2 | Todo | Implement whitelist support in DataStore. | MVP-2.1 | Whitelisted files/folders are excluded from later scans. |
-| MVP-2.3 | Todo | Define `DeletionExecutor` contract and delete result model. | MVP-2.1 | Delete outcomes distinguish restored-capable, permanent, failed, and skipped. |
-| MVP-2.4 | Todo | Implement app-cache deletion path. | MVP-2.3, MVP-0.8 | Own cache clears without platform delete prompts. |
-| MVP-2.5 | Todo | Implement local trash copy for eligible files. | MVP-2.3, MVP-0.4 | Restorable files are copied before source deletion and tracked in Room. |
-| MVP-2.6 | Todo | Implement permanent-delete warning for large or non-restorable files. | MVP-2.3 | Dialog uses explicit "Permanently delete" action text. |
-| MVP-2.7 | Todo | Implement MediaStore delete request path for API 30+. | MVP-2.3 | Shared media deletion uses platform-mediated confirmation when required. |
-| MVP-2.8 | Todo | Implement SAF delete path with `DocumentsContract`. | MVP-2.3 | Files in granted trees can be deleted only when URI permission allows it. |
-| MVP-2.9 | Todo | Build trash screen with restore eligible files and empty trash now. | MVP-2.5 | Restore works for eligible items; expired trash can be purged. |
-| MVP-2.10 | Todo | Add foreground service for user-initiated cleanup exceeding 10 seconds. | MVP-2.3 | API 34+ uses `dataSync` foreground service type. |
+| MVP-2.1 | Done | Build scan results screen grouped by category with expandable lists and multi-select. | MVP-1.10 | User can select/deselect files and categories. |
+| MVP-2.2 | Done | Implement whitelist support in DataStore. | MVP-2.1 | Whitelisted files/folders are excluded from later scans. |
+| MVP-2.3 | Done | Define `DeletionExecutor` contract and delete result model. | MVP-2.1 | Delete outcomes distinguish restored-capable, permanent, failed, and skipped. |
+| MVP-2.4 | Done | Implement app-cache deletion path. | MVP-2.3, MVP-0.8 | Own cache clears without platform delete prompts. |
+| MVP-2.5 | Done | Implement local trash copy for eligible files. | MVP-2.3, MVP-0.4 | Restorable files are copied before source deletion and tracked in Room. |
+| MVP-2.6 | Done | Implement permanent-delete warning for large or non-restorable files. | MVP-2.3 | Dialog uses explicit "Permanently delete" action text. |
+| MVP-2.7 | Done | Implement MediaStore delete request path for API 30+. | MVP-2.3 | Shared media deletion uses platform-mediated confirmation when required. |
+| MVP-2.8 | Done | Implement SAF delete path with `DocumentsContract`. | MVP-2.3 | Files in granted trees can be deleted only when URI permission allows it. |
+| MVP-2.9 | Done | Build trash screen with restore eligible files and empty trash now. | MVP-2.5 | Restore works for eligible items; expired trash can be purged. |
+| MVP-2.10 | Done | Add foreground service for user-initiated cleanup exceeding 10 seconds. | MVP-2.3 | API 34+ uses `dataSync` foreground service type. |
 
 **Exit Criteria**
 

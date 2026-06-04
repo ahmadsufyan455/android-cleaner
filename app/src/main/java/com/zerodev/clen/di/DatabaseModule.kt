@@ -25,7 +25,9 @@ object DatabaseModule {
         context = context,
         klass = ClenDatabase::class.java,
         name = DatabaseNames.CLEN_DATABASE,
-    ).build()
+    )
+        .fallbackToDestructiveMigration(true)
+        .build()
 
     @Provides
     fun provideFileItemDao(database: ClenDatabase): FileItemDao = database.fileItemDao()

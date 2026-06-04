@@ -111,6 +111,20 @@ class SettingsRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun addWhitelistedUri(uri: String) {
+        dataStore.edit { preferences ->
+            val existingUris = preferences[Keys.WHITELISTED_URIS].orEmpty()
+            preferences[Keys.WHITELISTED_URIS] = existingUris + uri
+        }
+    }
+
+    override suspend fun removeWhitelistedUri(uri: String) {
+        dataStore.edit { preferences ->
+            val existingUris = preferences[Keys.WHITELISTED_URIS].orEmpty()
+            preferences[Keys.WHITELISTED_URIS] = existingUris - uri
+        }
+    }
+
     private fun Preferences.toSettingsModel(): SettingsModel = SettingsModel(
         themeMode = enumOrDefault(this[Keys.THEME_MODE], ThemeMode.SYSTEM),
         dynamicColorEnabled = this[Keys.DYNAMIC_COLOR_ENABLED] ?: true,
@@ -124,6 +138,7 @@ class SettingsRepositoryImpl @Inject constructor(
         lastScanAtMillis = this[Keys.LAST_SCAN_AT_MILLIS],
         lastCleanAtMillis = this[Keys.LAST_CLEAN_AT_MILLIS],
         safTreeUris = this[Keys.SAF_TREE_URIS].orEmpty().toSortedSet(),
+        whitelistedUris = this[Keys.WHITELISTED_URIS].orEmpty().toSortedSet(),
     )
 
     private inline fun <reified T : Enum<T>> enumOrDefault(
@@ -142,5 +157,6 @@ class SettingsRepositoryImpl @Inject constructor(
         val LAST_SCAN_AT_MILLIS = longPreferencesKey("last_scan_at_millis")
         val LAST_CLEAN_AT_MILLIS = longPreferencesKey("last_clean_at_millis")
         val SAF_TREE_URIS = stringSetPreferencesKey("saf_tree_uris")
+        val WHITELISTED_URIS = stringSetPreferencesKey("whitelisted_uris")
     }
 }

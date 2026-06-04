@@ -16,7 +16,7 @@ import com.zerodev.clen.data.local.entity.TrashEntryEntity
         ScanRunEntity::class,
         TrashEntryEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 @TypeConverters(RoomTypeConverters::class)
