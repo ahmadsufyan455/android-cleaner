@@ -1,4 +1,4 @@
-package com.zerodev.clen.ui.theme
+package com.zerodev.clen.presentation.common.theme
 
 import androidx.compose.ui.graphics.Color
 
