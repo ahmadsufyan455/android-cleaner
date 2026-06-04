@@ -1,3 +1,16 @@
 <resources>
-    <string name="app_name">clen</string>
+    <string name="app_name">Clen</string>
+    <string name="home_title">Home</string>
+    <string name="home_subtitle">Storage dashboard starts here.</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_subtitle">Clean only what Android allows, with no ads, trackers, or fake boost claims.</string>
+    <string name="onboarding_title">Welcome to Clen</string>
+    <string name="quick_clean">Quick Clean</string>
+    <string name="scan_results_subtitle">Grouped scan results will appear here.</string>
+    <string name="scan_results_title">Results</string>
+    <string name="scan_subtitle">Scan progress and cancel controls will live here.</string>
+    <string name="scan_title">Scan</string>
+    <string name="settings_subtitle">Theme, thresholds, and privacy controls will live here.</string>
+    <string name="settings_title">Settings</string>
+    <string name="view_results">View Results</string>
 </resources>
