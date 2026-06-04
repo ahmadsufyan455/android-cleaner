@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -26,6 +27,8 @@ import com.zerodev.clen.domain.model.JunkCategory
 @Composable
 fun ScanScreen(
     state: ScanState,
+    autoStart: Boolean,
+    onAutoStartConsumed: () -> Unit,
     onStartScanClick: () -> Unit,
     onCancelScanClick: () -> Unit,
     onViewResultsClick: () -> Unit,
@@ -37,6 +40,17 @@ fun ScanScreen(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
     ) {
         onStartScanClick()
+    }
+
+    LaunchedEffect(autoStart) {
+        if (autoStart && !state.isScanning) {
+            onAutoStartConsumed()
+            if (state.mediaPermissions.isEmpty()) {
+                onStartScanClick()
+            } else {
+                mediaPermissionLauncher.launch(state.mediaPermissions.toTypedArray())
+            }
+        }
     }
 
     Column(
@@ -111,22 +125,24 @@ fun ScanScreen(
             }
         } else {
             state.status?.let { status ->
-                Text(
-                    text = stringResource(
-                        when (status) {
-                            com.zerodev.clen.domain.model.ScanStatus.COMPLETED ->
-                                R.string.scan_status_completed
-                            com.zerodev.clen.domain.model.ScanStatus.CANCELLED ->
-                                R.string.scan_status_cancelled
-                            com.zerodev.clen.domain.model.ScanStatus.FAILED ->
-                                R.string.scan_status_failed
-                            else -> R.string.scan_status_idle
-                        },
-                    ),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 16.dp),
-                )
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = stringResource(
+                            when (status) {
+                                com.zerodev.clen.domain.model.ScanStatus.COMPLETED ->
+                                    R.string.scan_status_completed
+                                com.zerodev.clen.domain.model.ScanStatus.CANCELLED ->
+                                    R.string.scan_status_cancelled
+                                com.zerodev.clen.domain.model.ScanStatus.FAILED ->
+                                    R.string.scan_status_failed
+                                else -> R.string.scan_status_idle
+                            },
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(16.dp),
+                    )
+                }
             }
             state.errorMessageResId?.let { errorMessageResId ->
                 Text(
@@ -152,7 +168,7 @@ fun ScanScreen(
                 onClick = onViewResultsClick,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(text = stringResource(R.string.view_results))
+                Text(text = stringResource(R.string.review_results))
             }
         }
     }

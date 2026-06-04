@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -14,6 +13,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -57,11 +57,6 @@ fun ClenApp(
             route = ClenRoute.Home.route,
             labelResId = R.string.home_title,
             icon = Icons.Outlined.Home,
-        ),
-        TopLevelDestination(
-            route = ClenRoute.Scan.route,
-            labelResId = R.string.scan_title,
-            icon = Icons.Outlined.Search,
         ),
         TopLevelDestination(
             route = ClenRoute.Trash.route,
@@ -130,7 +125,15 @@ fun ClenApp(
                 HomeScreen(
                     state = homeState,
                     onQuickCleanClick = {
+                        navController.currentBackStackEntry
+                            ?.savedStateHandle
+                            ?.set(AUTO_START_SCAN_KEY, true)
                         navController.navigate(ClenRoute.Scan.route) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onViewResultsClick = {
+                        navController.navigate(ClenRoute.ScanResults.route) {
                             launchSingleTop = true
                         }
                     },
@@ -141,9 +144,27 @@ fun ClenApp(
             composable(ClenRoute.Scan.route) {
                 val scanViewModel: ScanViewModel = hiltViewModel()
                 val scanState by scanViewModel.state.collectAsState()
+                val shouldAutoStart = navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.get<Boolean>(AUTO_START_SCAN_KEY) == true
+
+                LaunchedEffect(scanState.status) {
+                    if (scanState.status == com.zerodev.clen.domain.model.ScanStatus.COMPLETED) {
+                        navController.navigate(ClenRoute.ScanResults.route) {
+                            popUpTo(ClenRoute.Home.route)
+                            launchSingleTop = true
+                        }
+                    }
+                }
 
                 ScanScreen(
                     state = scanState,
+                    autoStart = shouldAutoStart,
+                    onAutoStartConsumed = {
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.remove<Boolean>(AUTO_START_SCAN_KEY)
+                    },
                     onStartScanClick = scanViewModel::startScan,
                     onCancelScanClick = scanViewModel::cancelScan,
                     onViewResultsClick = {
@@ -229,3 +250,5 @@ private data class TopLevelDestination(
     val labelResId: Int,
     val icon: ImageVector,
 )
+
+private const val AUTO_START_SCAN_KEY = "auto_start_scan"

@@ -4,12 +4,21 @@ import android.text.format.Formatter
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CleaningServices
+import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -28,6 +37,7 @@ import java.util.Date
 fun HomeScreen(
     state: HomeState,
     onQuickCleanClick: () -> Unit,
+    onViewResultsClick: () -> Unit,
     onRefreshCacheClick: () -> Unit,
     onClearCacheClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -50,6 +60,7 @@ fun HomeScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.Start,
@@ -58,28 +69,60 @@ fun HomeScreen(
             text = stringResource(R.string.home_title),
             style = MaterialTheme.typography.headlineMedium,
         )
-        Text(
-            text = stringResource(R.string.home_subtitle),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = 8.dp),
-        )
-        Button(
-            onClick = onQuickCleanClick,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(text = stringResource(R.string.quick_clean))
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.home_cleaner_title),
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                Text(
+                    text = stringResource(R.string.home_cleaner_subtitle),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Button(
+                    onClick = onQuickCleanClick,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Search,
+                        contentDescription = null,
+                    )
+                    Text(text = stringResource(R.string.analyze_now))
+                }
+                if (state.latestScanItemCount > 0) {
+                    OutlinedButton(
+                        onClick = onViewResultsClick,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(text = stringResource(R.string.review_latest_results))
+                    }
+                }
+            }
         }
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-        ) {
+        Card(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(
-                    text = stringResource(R.string.storage_overview_title),
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.storage_overview_title),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
+                        text = storageFree,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 Text(
                     text = if (state.isLoadingStorageStats) {
                         stringResource(R.string.storage_overview_loading)
@@ -92,13 +135,6 @@ fun HomeScreen(
                     LinearProgressIndicator(
                         progress = { usedProgress.coerceIn(0f, 1f) },
                         modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-                if (!state.isLoadingStorageStats) {
-                    Text(
-                        text = stringResource(R.string.storage_free_value, storageFree),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -147,10 +183,25 @@ fun HomeScreen(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text(
-                    text = stringResource(R.string.own_cache_title),
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.own_cache_title),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    IconButton(
+                        onClick = onRefreshCacheClick,
+                        enabled = !state.isLoadingCacheSize && !state.isClearingCache,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Refresh,
+                            contentDescription = stringResource(R.string.refresh_cache),
+                        )
+                    }
+                }
                 Text(
                     text = if (state.isLoadingCacheSize) {
                         stringResource(R.string.cache_size_loading)
@@ -178,18 +229,17 @@ fun HomeScreen(
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
                 }
-                OutlinedButton(
-                    onClick = onRefreshCacheClick,
-                    enabled = !state.isLoadingCacheSize && !state.isClearingCache,
-                ) {
-                    Text(text = stringResource(R.string.refresh_cache))
-                }
                 Button(
                     onClick = onClearCacheClick,
                     enabled = !state.isLoadingCacheSize &&
                         !state.isClearingCache &&
                         state.cacheSizeBytes > 0L,
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
+                    Icon(
+                        imageVector = Icons.Outlined.CleaningServices,
+                        contentDescription = null,
+                    )
                     Text(text = stringResource(R.string.clear_own_cache))
                 }
             }

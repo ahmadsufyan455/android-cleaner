@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.zerodev.clen.R
 import com.zerodev.clen.domain.model.FileItem
 import com.zerodev.clen.domain.model.JunkCategory
+import com.zerodev.clen.domain.model.ScanSource
 
 @Composable
 fun ScanResultsScreen(
@@ -286,7 +287,7 @@ private fun ResultItemRow(
                         style = MaterialTheme.typography.titleMedium,
                     )
                     Text(
-                        text = item.source.name,
+                        text = item.source.label(),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -314,5 +315,16 @@ private fun categoryLabel(category: JunkCategory): String =
             JunkCategory.DUPLICATE_PHOTO -> R.string.category_duplicate_photo
             JunkCategory.OLD_SCREENSHOT -> R.string.category_old_screenshot
             JunkCategory.WHATSAPP_MEDIA -> R.string.category_whatsapp_media
+        },
+    )
+
+@Composable
+private fun ScanSource.label(): String =
+    stringResource(
+        when (this) {
+            ScanSource.APP_PRIVATE -> R.string.source_app_private
+            ScanSource.MEDIASTORE -> R.string.source_media
+            ScanSource.SAF_TREE -> R.string.source_folder
+            ScanSource.DOWNLOADS -> R.string.source_downloads
         },
     )
