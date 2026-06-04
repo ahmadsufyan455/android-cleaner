@@ -18,6 +18,7 @@ internal object MediaStoreScannerHelpers {
         MediaStore.Files.FileColumns.SIZE,
         MediaStore.Files.FileColumns.MIME_TYPE,
         MediaStore.Files.FileColumns.DATE_MODIFIED,
+        MediaStore.Files.FileColumns.MEDIA_TYPE,
     )
 
     fun ContentResolver.queryFiles(
@@ -59,12 +60,25 @@ internal object MediaStoreScannerHelpers {
         )
 
         return MediaStoreFile(
-            uri = ContentUris.withAppendedId(filesUri, id),
-            displayName = displayName,
-            sizeBytes = sizeBytes,
-            mimeType = mimeType,
-            lastModifiedMillis = lastModifiedSeconds * 1_000L,
-        )
+        uri = ContentUris.withAppendedId(cursorMediaUri(), id),
+        displayName = displayName,
+        sizeBytes = sizeBytes,
+        mimeType = mimeType,
+        lastModifiedMillis = lastModifiedSeconds * 1_000L,
+    )
+    }
+
+    private fun Cursor.cursorMediaUri(): Uri {
+        val mediaType = getInt(getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE))
+        return when (mediaType) {
+            MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE ->
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO ->
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO ->
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            else -> filesUri
+        }
     }
 }
 

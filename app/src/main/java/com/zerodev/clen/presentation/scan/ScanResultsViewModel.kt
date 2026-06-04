@@ -149,11 +149,13 @@ class ScanResultsViewModel @Inject constructor(
                         outcome.status == DeleteOutcomeStatus.PLATFORM_CONFIRMATION_REQUIRED
                     }
                     .map { outcome -> outcome.fileItem.uri }
-                val pendingIntent = mediaStoreDeleteRequestFactory.createDeleteRequest(platformUris)
+                val deleteRequestUris = mediaStoreDeleteRequestFactory
+                    .filterDeleteRequestUris(platformUris)
+                val pendingIntent = mediaStoreDeleteRequestFactory.createDeleteRequest(deleteRequestUris)
                 if (pendingIntent != null) {
                     pendingMediaDeleteRequest.value = MediaDeleteRequest(
                         intentSender = pendingIntent.intentSender,
-                        uris = platformUris,
+                        uris = deleteRequestUris,
                     )
                 }
                 val skipped = result.outcomes.count { outcome ->
